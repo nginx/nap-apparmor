@@ -1,0 +1,58 @@
+#include <tunables/global>
+ 
+profile /usr/sbin/nginx {
+  #include <abstractions/base>
+  #include <abstractions/nameservice>
+  #include <abstractions/ssl_certs>
+  #include <abstractions/consoles>
+ 
+  # NGINX core
+  /usr/sbin/nginx mr,
+  /etc/nginx/** r,
+  /var/log/nginx/** rw,
+  /run/nginx.pid rwk,
+ 
+  # SSL configuration
+  /etc/ssl/openssl.cnf r,
+  
+  # Shell execution - use ux for unconfined execution to avoid nesting issues
+  /usr/bin/dash ux,
+  /bin/sh ux,
+  /usr/bin/su ux,
+  /usr/bin/cat ux,
+  /usr/bin/jq ux,
+  
+  # App Protect binaries - allow unconfined execution
+  /opt/app_protect/bin/* ux,
+ 
+  # NAP socket plugin - keep as child profile
+  /usr/share/ts/bin/bd-socket-plugin Cx -> bd-socket-plugin,
+  
+  # App Protect files
+  /opt/app_protect/** rwk,
+  /var/log/app_protect/** rw,
+  /etc/app_protect/** r,
+  
+  # Additional system access that NAP might need
+  /etc/passwd r,
+  /etc/group r,
+  /etc/shadow r,              # Add for authentication
+  /etc/pam.d/** r,           # Add for PAM
+  /proc/*/stat r,
+  /proc/sys/kernel/pid_max r,
+  /sys/fs/cgroup/** r,       # Add for cgroup access
+  /run/systemd/** r,         # Add for systemd integration
+ 
+  # Network
+  network inet tcp,
+  network inet udp,
+  
+  # Capabilities
+  capability dac_read_search,
+  capability net_bind_service,
+  capability dac_override,
+  capability setuid,
+  capability setgid,
+  capability sys_resource,   
+  capability chown,
+}
