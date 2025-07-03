@@ -1,0 +1,32 @@
+#include <tunables/global>
+ 
+profile bd-socket-plugin /usr/share/ts/bin/bd-socket-plugin {
+  #include <abstractions/base>
+  #include <abstractions/nameservice>
+  #include <abstractions/ssl_certs>
+ 
+  # Binary and libraries
+  /usr/share/ts/bin/bd-socket-plugin mr,
+  /opt/app_protect/lib/** mr,
+ 
+  /shared/GeoIP/v2/*.dat r,
+   
+  # SSL configuration
+  /etc/ssl/openssl.cnf r,
+  
+  # DNS resolution
+  /etc/host.conf r,
+  /run/systemd/resolve/resolv.conf r,
+  
+  # App Protect configuration
+  /opt/app_protect/bd_config/tables/** rw,
+  
+  # Process information
+  /proc/*/task/*/comm rw,
+   
+  # Network
+  network inet tcp,
+ 
+  # Capabilities
+  capability dac_override,
+}
